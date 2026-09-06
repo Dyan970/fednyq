@@ -64,6 +64,25 @@ python train.py --data data/synthetic.npz --method fednyq \
   --lambda_cons 0.2 --seed 2025
 ```
 
+For a substantially harder test, the complex profile adds three-channel sensor
+mixing, per-window frequency jitter, amplitude modulation, intermittent high-frequency
+content, harmonics, colored noise, baseline drift, impulse artifacts, random gains,
+and occasional channel dropout while retaining interpretable Nyquist-dependent class
+information:
+
+```bash
+python make_synthetic.py --profile complex --num_samples 6000 \
+  --output data/synthetic_complex.npz --seed 1234
+python train.py --data data/synthetic_complex.npz --method fedavg \
+  --experiment_name complex_fedavg --seed 2025 --rounds 50
+python train.py --data data/synthetic_complex.npz --method fednyq \
+  --experiment_name complex_fednyq --lambda_cons 0.2 --seed 2025 --rounds 50
+```
+
+The generator prints relative B1/B2/B3 energy for every class as a quick data sanity
+check. Override `--channels` or `--noise` to adjust complexity; defaults are one
+channel/noise 0.5 for `simple` and three channels/noise 0.65 for `complex`.
+
 For a quick CPU smoke test, append `--num_clients 4 --client_fraction 0.5
 --rounds 2 --local_epochs 1 --batch_size 32 --partition iid
 --min_client_samples 2`.
